@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dojo Copito — Aprende a programar con IA en tu empresa</title>
+<meta name="description" content="Dojo Copito es una app interactiva para que empleados de cualquier área aprendan a programar con ayuda de la IA, con rutas según su rol en la empresa.">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥋</text></svg>">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#inicio" aria-label="Dojo Copito, inicio">
+    <span class="brand-emoji" aria-hidden="true">🥋</span>
+    <span>Dojo <strong>Copito</strong></span>
+  </a>
+  <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+  <nav class="nav" id="mainNav">
+    <a href="#roles">Roles</a>
+    <a href="#ruta">Mi ruta</a>
+    <a href="#constructor">Constructor de prompts</a>
+    <a href="#quiz">Quiz</a>
+    <a href="#reglas">Reglas de oro</a>
+  </nav>
+</header>
+
+<main id="inicio">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-text">
+      <p class="eyebrow">Para equipos de cualquier empresa</p>
+      <h1>Aprende a programar <span class="grad">con IA</span>, desde tu propio rol</h1>
+      <p class="lead">No necesitas ser ingeniero. En Dojo Copito eliges tu rol en la empresa — ventas, finanzas, operaciones, recursos humanos y más — y sigues una ruta práctica para automatizar tu trabajo escribiendo prompts y revisando código generado por IA.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#roles">Elegir mi rol</a>
+        <a class="btn btn-ghost" href="#constructor">Crear mi primer prompt</a>
+      </div>
+      <div class="progress-wrap" aria-label="Tu progreso total">
+        <div class="progress-label"><span>Tu progreso en el dojo</span><span id="globalProgressText">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="globalProgressFill" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="hero-card" aria-hidden="true">
+      <div class="copito">🐾</div>
+      <p class="copito-name">Copito, tu sensei digital</p>
+      <ul class="copito-tips">
+        <li>🗣️ Describe lo que quieres en lenguaje natural</li>
+        <li>🤖 La IA propone el código</li>
+        <li>🔍 Tú lo revisas, lo pruebas y lo mejoras</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CÓMO FUNCIONA -->
+  <section class="section steps">
+    <h2>Así funciona el dojo</h2>
+    <div class="steps-grid">
+      <article class="step"><span class="step-num">1</span><h3>Elige tu rol</h3><p>Cada área de la empresa automatiza cosas distintas. Tu ruta se adapta a tus tareas reales.</p></article>
+      <article class="step"><span class="step-num">2</span><h3>Completa las lecciones</h3><p>Lecciones cortas, en orden, con ejemplos de prompts listos para copiar y adaptar.</p></article>
+      <article class="step"><span class="step-num">3</span><h3>Construye tu proyecto</h3><p>Cada ruta termina en un mini proyecto aplicable a tu trabajo desde la primera semana.</p></article>
+      <article class="step"><span class="step-num">4</span><h3>Sube de cinturón</h3><p>Marca tus lecciones, mide tu progreso y pasa el quiz para ganar tu próximo cinturón. 🥋</p></article>
+    </div>
+  </section>
+
+  <!-- ROLES -->
+  <section class="section" id="roles">
+    <h2>Los roles más comunes de una empresa</h2>
+    <p class="section-sub">Toca un rol para ver su ruta de aprendizaje, sus prompts de ejemplo y su mini proyecto.</p>
+    <div class="roles-grid" id="rolesGrid" role="list"></div>
+  </section>
+
+  <!-- RUTA DEL ROL -->
+  <section class="section route" id="ruta">
+    <div class="route-head">
+      <h2 id="routeTitle">Tu ruta de aprendizaje</h2>
+      <span class="belt" id="routeBelt">Cinturón blanco ⚪</span>
+    </div>
+    <p class="section-sub" id="routeDesc">Selecciona un rol arriba para ver su ruta personalizada.</p>
+    <div class="route-meta">
+      <div class="meta-box"><span class="meta-label">Superpoder con IA</span><p id="routePower">—</p></div>
+      <div class="meta-box"><span class="meta-label">Mini proyecto final</span><p id="routeProject">—</p></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Progreso en esta ruta</span><span id="routeProgressText">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="routeProgressFill" style="width:0%"></div></div>
+    </div>
+    <ol class="lessons" id="lessonsList"></ol>
+    <div class="prompt-example">
+      <h3>Prompt de ejemplo de este rol</h3>
+      <pre id="routePrompt">Selecciona un rol para ver un prompt de ejemplo.</pre>
+      <button class="btn btn-small" id="copyRoutePrompt" type="button">Copiar prompt</button>
+      <span class="copied" id="copiedRoute" hidden>¡Copiado! ✅</span>
+    </div>
+  </section>
+
+  <!-- CONSTRUCTOR DE PROMPTS -->
+  <section class="section builder" id="constructor">
+    <h2>Constructor de prompts</h2>
+    <p class="section-sub">Arma un prompt profesional para pedirle código a un asistente de IA. Un buen prompt = un buen resultado.</p>
+    <form class="builder-form" id="builderForm">
+      <label>Tu rol
+        <select id="builderRole"></select>
+      </label>
+      <label>¿Qué quieres lograr?
+        <select id="builderTask"></select>
+      </label>
+      <label>Tu nivel
+        <select id="builderLevel">
+          <option value="principiante">Principiante — explícame todo paso a paso</option>
+          <option value="intermedio">Intermedio — ya entiendo lo básico</option>
+          <option value="avanzado">Avanzado — dame código limpio y directo</option>
+        </select>
+      </label>
+      <label>Detalle extra (opcional)
+        <input type="text" id="builderDetail" placeholder="Ej.: los datos vienen en un Excel con columnas Fecha y Monto">
+      </label>
+      <button class="btn btn-primary" type="submit">Generar prompt ✨</button>
+    </form>
+    <div class="builder-output">
+      <pre id="builderOutput">Tu prompt aparecerá aquí…</pre>
+      <button class="btn btn-small" id="copyBuilderPrompt" type="button">Copiar prompt</button>
+      <span class="copied" id="copiedBuilder" hidden>¡Copiado! ✅</span>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="section quiz" id="quiz">
+    <h2>Quiz del dojo</h2>
+    <p class="section-sub">Responde las 5 preguntas y descubre si ya piensas como programador asistido por IA.</p>
+    <div id="quizBox"></div>
+    <div class="quiz-footer">
+      <span id="quizScore">Puntaje: 0 / 5</span>
+      <button class="btn btn-ghost" id="quizRestart" type="button">Reiniciar quiz</button>
+    </div>
+    <p class="quiz-result" id="quizResult" hidden></p>
+  </section>
+
+  <!-- REGLAS DE ORO -->
+  <section class="section rules" id="reglas">
+    <h2>Reglas de oro al programar con IA en la empresa</h2>
+    <div class="rules-grid">
+      <article class="rule"><h3>🔍 Revisa siempre el código</h3><p>La IA se equivoca con confianza. Lee lo que genera, pruébalo con datos de ejemplo y nunca lo ejecutes sin entender qué hace.</p></article>
+      <article class="rule"><h3>🔒 Cuida los datos</h3><p>No pegues contraseñas, datos personales de clientes ni información confidencial en chats de IA que no sean los autorizados por tu empresa.</p></article>
+      <article class="rule"><h3>🧪 Prueba en pequeño</h3><p>Primero con 5 registros, no con 5 000. Si funciona en pequeño y revisaste los resultados, recién escala.</p></article>
+      <article class="rule"><h3>🗣️ Pide con contexto</h3><p>“Actúa como…”, el formato de entrada, el resultado esperado y un ejemplo valen más que cien “hazlo bien”.</p></article>
+      <article class="rule"><h3>📝 Guarda tus prompts</h3><p>Un prompt que funcionó es un activo del equipo. Documéntalo y compártelo para que otros no empiecen de cero.</p></article>
+      <article class="rule"><h3>🙋 Pregunta cuando dudes</h3><p>Automatizar un proceso que no entiendes solo lo rompe más rápido. Entiende primero el proceso, luego el código.</p></article>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>🥋 <strong>Dojo Copito</strong> — Aprende a programar con IA desde cualquier rol de la empresa.</p>
+  <p class="footer-small">Proyecto educativo. Tu progreso se guarda solo en este navegador.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
