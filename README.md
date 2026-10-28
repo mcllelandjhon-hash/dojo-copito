@@ -53,6 +53,10 @@ Y abrir `http://localhost:8000` en el navegador.
 Publicada con **GitHub Pages** (costo: $0) desde este mismo repositorio.
 Cada push a `main` actualiza el sitio automáticamente.
 
+## 🧩 ERP Copito (nuevo)
+
+Este repositorio también contiene **[ERP Copito](erp/)**, un sistema de gestión empresarial completo (backend + frontend + base de datos) en la carpeta [`erp/`](erp/): ventas, compras, inventario, facturación, finanzas, RR. HH., tareas y reportes, con su propia documentación de arquitectura, API, diseño, pruebas y despliegue. Ver [erp/README.md](erp/README.md).
+
 ## Licencia
 
 Proyecto educativo de uso libre para capacitación interna.
