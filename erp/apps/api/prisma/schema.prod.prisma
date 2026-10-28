@@ -1,0 +1,304 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  SALES
+  WAREHOUSE
+  ACCOUNTING
+  HR
+  VIEWER
+}
+
+enum OrderStatus {
+  DRAFT
+  CONFIRMED
+  FULFILLED
+  RECEIVED
+  CANCELLED
+}
+
+enum InvoiceKind {
+  RECEIVABLE
+  PAYABLE
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PARTIAL
+  PAID
+  VOID
+}
+
+enum MovementType {
+  IN
+  OUT
+  ADJUSTMENT
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         Role       @default(VIEWER)
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  auditLogs    AuditLog[]
+  tasks        Task[]     @relation("TaskAssignee")
+}
+
+model CompanySettings {
+  id          String   @id @default("default")
+  legalName   String   @default("Mi Empresa S.A.C.")
+  tradeName   String   @default("Mi Empresa")
+  taxId       String   @default("")
+  email       String   @default("")
+  phone       String   @default("")
+  address     String   @default("")
+  currency    String   @default("PEN")
+  taxRateBps  Int      @default(1800)
+  updatedAt   DateTime @updatedAt
+}
+
+model Customer {
+  id         String      @id @default(cuid())
+  name       String
+  taxId      String?
+  email      String?
+  phone      String?
+  address    String?
+  active     Boolean     @default(true)
+  notes      String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  sales      SalesOrder[]
+  invoices   Invoice[]
+}
+
+model Supplier {
+  id        String         @id @default(cuid())
+  name      String
+  taxId     String?
+  email     String?
+  phone     String?
+  address   String?
+  active    Boolean        @default(true)
+  notes     String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  purchases PurchaseOrder[]
+  invoices  Invoice[]
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  products Product[]
+}
+
+model Product {
+  id            String         @id @default(cuid())
+  sku           String         @unique
+  name          String
+  description   String?
+  categoryId    String?
+  category      Category?      @relation(fields: [categoryId], references: [id])
+  costCents     Int            @default(0)
+  priceCents    Int            @default(0)
+  stock         Int            @default(0)
+  minStock      Int            @default(0)
+  active        Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  movements     StockMovement[]
+  salesItems    SalesOrderItem[]
+  purchaseItems PurchaseOrderItem[]
+}
+
+model StockMovement {
+  id        String       @id @default(cuid())
+  productId String
+  product   Product      @relation(fields: [productId], references: [id])
+  type      MovementType
+  quantity  Int
+  reason    String
+  reference String?
+  createdAt DateTime     @default(now())
+}
+
+model SalesOrder {
+  id          String           @id @default(cuid())
+  number      String           @unique
+  customerId  String
+  customer    Customer         @relation(fields: [customerId], references: [id])
+  status      OrderStatus      @default(DRAFT)
+  notes       String?
+  subtotalCents Int            @default(0)
+  taxCents    Int              @default(0)
+  totalCents  Int              @default(0)
+  issuedAt    DateTime         @default(now())
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  items       SalesOrderItem[]
+  invoice     Invoice?
+}
+
+model SalesOrderItem {
+  id             String     @id @default(cuid())
+  salesOrderId   String
+  salesOrder     SalesOrder @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product    @relation(fields: [productId], references: [id])
+  quantity       Int
+  unitPriceCents Int
+  lineTotalCents Int
+}
+
+model PurchaseOrder {
+  id            String              @id @default(cuid())
+  number        String              @unique
+  supplierId    String
+  supplier      Supplier            @relation(fields: [supplierId], references: [id])
+  status        OrderStatus         @default(DRAFT)
+  notes         String?
+  subtotalCents Int                 @default(0)
+  taxCents      Int                 @default(0)
+  totalCents    Int                 @default(0)
+  issuedAt      DateTime            @default(now())
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  items         PurchaseOrderItem[]
+  invoice       Invoice?
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  quantity        Int
+  unitCostCents   Int
+  lineTotalCents  Int
+}
+
+model Invoice {
+  id            String        @id @default(cuid())
+  number        String        @unique
+  kind          InvoiceKind
+  status        InvoiceStatus @default(UNPAID)
+  customerId    String?
+  customer      Customer?     @relation(fields: [customerId], references: [id])
+  supplierId    String?
+  supplier      Supplier?     @relation(fields: [supplierId], references: [id])
+  salesOrderId  String?       @unique
+  salesOrder    SalesOrder?   @relation(fields: [salesOrderId], references: [id])
+  purchaseOrderId String?     @unique
+  purchaseOrder PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  totalCents    Int
+  paidCents     Int           @default(0)
+  issuedAt      DateTime      @default(now())
+  dueAt         DateTime
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  payments      Payment[]
+}
+
+model Payment {
+  id         String   @id @default(cuid())
+  invoiceId  String
+  invoice    Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amountCents Int
+  method     String   @default("TRANSFER")
+  reference  String?
+  paidAt     DateTime @default(now())
+  createdAt  DateTime @default(now())
+}
+
+model FinanceTransaction {
+  id          String          @id @default(cuid())
+  type        TransactionType
+  category    String
+  description String
+  amountCents Int
+  occurredAt  DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+}
+
+model Department {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  employees Employee[]
+}
+
+model Employee {
+  id           String      @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String?     @unique
+  phone        String?
+  position     String
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  salaryCents  Int         @default(0)
+  hiredAt      DateTime?
+  active       Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Task {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  dueAt       DateTime?
+  assigneeId  String?
+  assignee    User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  detail    String?
+  createdAt DateTime @default(now())
+}
+
+model Counter {
+  id    String @id
+  value Int    @default(0)
+}

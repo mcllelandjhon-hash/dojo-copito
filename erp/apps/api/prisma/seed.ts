@@ -8,7 +8,9 @@ async function main() {
   await prisma.user.upsert({
     where: { email: "admin@copito.local" },
     create: { name: "Administradora Copito", email: "admin@copito.local", passwordHash, role: "ADMIN" },
-    update: { passwordHash, role: "ADMIN", active: true },
+    // No se toca update: si el admin ya existe, su contraseña actual se respeta
+    // (la semilla puede correr en cada arranque sin revertir cambios).
+    update: {},
   });
   await prisma.user.upsert({
     where: { email: "ventas@copito.local" },
