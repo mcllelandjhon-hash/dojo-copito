@@ -1,0 +1,29 @@
+name: ERP Copito CI
+
+on:
+  push:
+    paths:
+      - "erp/**"
+      - ".github/workflows/erp-ci.yml"
+  pull_request:
+    paths:
+      - "erp/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: erp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: erp/package-lock.json
+      - run: npm install
+      - run: npm run db:generate
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build --workspace @erp-copito/web
