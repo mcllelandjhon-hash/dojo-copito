@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+*.db
+*.db-journal
+apps/api/prisma/dev.db
+apps/api/prisma/test.db
+coverage/
+.DS_Store
