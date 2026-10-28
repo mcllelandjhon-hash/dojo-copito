@@ -1,1 +1,1 @@
-{"compilerOptions":{"outDir":"dist","rootDir":"src","sourceMap":false},"exclude":["node_modules","dist","tests","prisma"],"extends":"./tsconfig.json","include":["src/**/*.ts"]}
+{"compilerOptions":{"outDir":"dist","rootDir":"src","sourceMap":false,"types":["node"]},"exclude":["node_modules","dist","tests","prisma"],"extends":"./tsconfig.json","include":["src/**/*.ts"]}
