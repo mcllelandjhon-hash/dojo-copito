@@ -29,25 +29,17 @@ Levanta la API (puerto 4000) y la web servida con Nginx (puerto 8080 → http://
 docker compose exec api npm run db:seed
 ```
 
-## Opción C: producción
+## Opción C: producción gratuita (la usada para el despliegue en vivo)
 
-Arquitectura recomendada de bajo costo:
-
-| Pieza | Servicio sugerido | Notas |
+| Pieza | Servicio | Configuración |
 |---|---|---|
-| Web (build de Vite) | GitHub Pages, Netlify, Vercel o Cloudflare Pages | Es estática; define `VITE_API_URL` con la URL pública de la API. |
-| API | Render, Railway, Fly.io o un VPS con Docker | Variables: `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `PORT`. |
-| Base de datos | PostgreSQL gestionado (Neon, Supabase, Render) | Cambia el proveedor en `prisma/schema.prisma` a `postgresql`, genera la migración y usa la URL del proveedor. |
+| Base de datos | Neon (PostgreSQL, plan gratuito) | Proyecto nuevo; se usa su cadena de conexión **directa** (sin `-pooler`) como `DATABASE_URL`. |
+| API | Render (Web Service, plan gratuito) | Repo dojo-copito, directorio raíz `erp`. Build: `npm install && npm run build -w @erp-copito/api` tras generar el cliente con el esquema de producción. Start: `cd apps/api && npx prisma db push --schema prisma/schema.prod.prisma && npm run db:seed && node dist/server.js`. Variables: `DATABASE_URL` (Neon), `JWT_SECRET` (largo y aleatorio), `CORS_ORIGIN` (la URL pública de la web). |
+| Web | Render (Static Site, plan gratuito) | Directorio raíz `erp`. Build: `npm install && npm run build -w @erp-copito/web`. Publish: `apps/web/dist`. Variable: `VITE_API_URL` (la URL pública de la API). Regla de reescritura: `/* → /index.html` para que el enrutado SPA funcione. |
 
-Pasos de producción para la API:
+El repositorio trae `apps/api/prisma/schema.prod.prisma` (mismo modelo, proveedor `postgresql`) para producción, sin tocar el `schema.prisma` de desarrollo (SQLite). Los scripts `db:generate:prod` y `db:push:prod` de la API lo usan.
 
-```bash
-npm ci
-npm run db:generate
-npx prisma migrate deploy   # con PostgreSQL y migraciones generadas
-npm run build
-npm start
-```
+Notas de los planes gratuitos: la API de Render “duerme” tras ~15 minutos sin uso y el primer acceso puede tardar hasta un minuto; Neon ofrece un tamaño de base modesto, suficiente para una PYME que empieza.
 
 ### Seguridad antes de publicar
 
